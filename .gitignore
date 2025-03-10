@@ -1,1 +1,7 @@
 datasets/*
+hf_cache
+data/*
+images/*
+models/*
+*__pycache__*
+wandb

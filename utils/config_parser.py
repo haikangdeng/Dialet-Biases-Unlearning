@@ -81,7 +81,7 @@ class ConfigParser:
                     input = torch.flatten(input, start_dim=1)
                     target = torch.flatten(target, start_dim=1)
 
-                loss = -1 * cosine_similarity(input, target, dim=1)
+                loss = 1 - cosine_similarity(input, target, dim=1)
 
                 if self.reduction == 'mean':
                     loss = loss.mean()
@@ -142,6 +142,10 @@ class ConfigParser:
     @property
     def wandb(self):
         return self._config['wandb']
+    
+    @property
+    def epochs(self):
+        return self._config['training']['epochs']
 
     @property
     def loss_weight(self):
@@ -151,9 +155,9 @@ class ConfigParser:
     def num_steps(self):
         return self._config['training']['num_steps']
 
-    @property
-    def injection(self):
-        return self._config['injection']
+    # @property
+    # def injection(self):
+    #     return self._config['injection']
 
     @property
     def hf_token(self):
@@ -167,6 +171,14 @@ class ConfigParser:
     def loss_fkt(self):
         return self.create_loss_function()
 
+    # @property
+    # def homoglyphs(self):
+    #     return self.injection['homoglyphs']
+    
     @property
-    def homoglyphs(self):
-        return self.injection['homoglyphs']
+    def dialect_file(self):
+        return self._config['dialect_file']
+    
+    @property
+    def dialect_file_folder(self):
+        return self._config['dialect_file_folder']
