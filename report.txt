@@ -1,0 +1,28 @@
+CONTROL WITH DIALECT_ASSOCIATED SAE ONLY
+
+Before Unlearning
+Dialect total score for stable-diffusion-v1-5: 0.5785
+Dialect total score for stable-diffusion-2-1: 0.5733
+Sae total score for stable-diffusion-v1-5: 0.8142
+Sae total score for stable-diffusion-2-1: 0.8359
+
+After Unlearning
+Dialect total score for stable-diffusion-v1-5: 0.7020
+Dialect total score for stable-diffusion-2-1: 0.6542
+Sae total score for stable-diffusion-v1-5: 0.7442
+Sae total score for stable-diffusion-2-1: 0.7606
+
+=========================================================
+MORE CONTROL PROMPTS (SAE FROM EACH DATASET)
+
+Before Unlearning
+Dialect total score for stable-diffusion-v1-5: 0.5756
+Dialect total score for stable-diffusion-2-1: 0.5862
+Sae total score for stable-diffusion-v1-5: 0.8011
+Sae total score for stable-diffusion-2-1: 0.8306
+
+After Unlearning
+Dialect total score for stable-diffusion-v1-5: 0.7119
+Dialect total score for stable-diffusion-2-1: 0.6555
+Sae total score for stable-diffusion-v1-5: 0.7675
+Sae total score for stable-diffusion-2-1: 0.8224

@@ -2,6 +2,7 @@ datasets/*
 hf_cache
 data/*
 images/*
+images_orig/*
 models/*
 *__pycache__*
 wandb

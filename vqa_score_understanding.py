@@ -3,14 +3,16 @@ import pandas as pd
 from tqdm import tqdm
 import t2v_metrics
 import json
+from argparse import ArgumentParser
 
 # ------------------------- Configuration -------------------------
 # IMG_DIR = "/local1/bryanzhou008/Dialect/multimodal-dialectal-bias/data/image/basic/bre"
 # DATA_FILE = "/local1/bryanzhou008/Dialect/multimodal-dialectal-bias/data/text/basic/bre.csv"
 # MODELS_TO_EVALUATE = ["stable-diffusion-3.5-large-turbo"]
-IMG_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images"
+IMG_DIR_SWAP = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images"
+IMG_DIR_ORIG = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images_orig"
 DATA_FILE = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/train_val_test/4-1-1/basic/sge/test.csv"
-MODELS_TO_EVALUATE = ["stable-diffusion-v1-5"]
+MODELS_TO_EVALUATE = ["stable-diffusion-v1-5", "stable-diffusion-2-1"]
 # ------------------------------------------------------------------
 
 # Initialize the new scoring metric.
@@ -41,10 +43,15 @@ def get_average_score(img_dir, model_name, folder, gen_prompt, ref_prompt, num_i
 
     return float(sum(scores)/len(scores))
 
-def main():
+def main(args):
     df = pd.read_csv(DATA_FILE, encoding="unicode_escape")
     dialect_prompts = df["Dialect_Prompt"].tolist()
     sae_prompts = df["SAE_Prompt"].tolist()
+    
+    if args.swap:
+        img_dir = IMG_DIR_SWAP
+    else:
+        img_dir = IMG_DIR_ORIG
 
     results = {
         "dialect": {model: [] for model in MODELS_TO_EVALUATE},
@@ -57,13 +64,13 @@ def main():
 
         # Evaluate dialect images (using SAE prompt as reference).
         for model in MODELS_TO_EVALUATE:
-            score = get_average_score(IMG_DIR, model, DATA_FILE.split("/")[-2], dialect_prompt, sae_prompt)
+            score = get_average_score(img_dir, model, DATA_FILE.split("/")[-2], dialect_prompt, sae_prompt)
             results["dialect"][model].append(score)
             print(f"Prompt {i} - {model} (dialect): {score:.4f}")
 
         # Evaluate SAE images (using SAE prompt for both generated and reference).
         for model in MODELS_TO_EVALUATE:
-            score = get_average_score(IMG_DIR, model, "sae", sae_prompt, sae_prompt)
+            score = get_average_score(img_dir, model, "sae", sae_prompt, sae_prompt)
             results["sae"][model].append(score)
             print(f"Prompt {i} - {model} (sae): {score:.4f}")
 
@@ -73,9 +80,17 @@ def main():
             avg_score = sum(scores) / len(scores)
             print(f"{set_type.capitalize()} total score for {model}: {avg_score:.4f}")
     
-    output_file = os.path.join(IMG_DIR, model, "results.json")
+    output_file = os.path.join(img_dir, "results.json")
     with open(output_file, "w") as f:
         json.dump(results, f)
 
+
+def parse_arguments():
+    parser = ArgumentParser()
+    parser.add_argument("--swap", action="store_true")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    main()
+    args = parse_arguments()
+    main(args)

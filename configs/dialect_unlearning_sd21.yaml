@@ -7,14 +7,16 @@ seed: 42
 # dialect_file: /data2/haikang/projects/cloned/Dialet-Biases-Unlearning/train_val_test/4-1-1/basic/sge/train.csv
 dialect_file_folder: /data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/train_val_test/4-1-1/basic
 
-# tokenizer: openai/clip-vit-large-patch14
-# text_encoder: openai/clip-vit-large-patch14
-stable_diffusion_model: runwayml/stable-diffusion-v1-5
+# tokenizer: laion/CLIP-ViT-H-14-laion2B-s32B-b79K      # wrong text encoder
+# text_encoder: laion/CLIP-ViT-H-14-laion2B-s32B-b79K   # wrong text encoder
+stable_diffusion_model: stabilityai/stable-diffusion-2-1
+
 hf_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 optimizer:  # specify the optimizer and its parameters from torch.optim for training.
   AdamW:
-    lr: 0.0001
+    # lr: 0.0001
+    lr: 0.00001
     betas: [0.9, 0.999]
     eps: 1.0e-08
     weight_decay: 0.0

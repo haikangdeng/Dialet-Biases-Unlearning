@@ -5,9 +5,10 @@ import torch
 import torch.optim as optim
 import yaml
 from datasets import load_dataset
-from rtpt.rtpt import RTPT
+# from rtpt.rtpt import RTPT
 from torch.nn.functional import cosine_similarity
 from transformers import CLIPTextModel, CLIPTokenizer
+from diffusers import StableDiffusionPipeline
 
 
 class ConfigParser:
@@ -25,6 +26,12 @@ class ConfigParser:
         text_encoder = CLIPTextModel.from_pretrained(
             self._config['text_encoder'])
         return text_encoder
+    
+    def load_encoder_and_tokenizer(self):
+        pipe = StableDiffusionPipeline.from_pretrained(
+            self._config["stable_diffusion_model"],
+        )
+        return pipe.text_encoder, pipe.tokenizer
 
     def load_datasets(self):
         dataset_name = self._config['dataset']
@@ -92,12 +99,12 @@ class ConfigParser:
         loss_fkt = SimilarityLoss(flatten=True)
         return loss_fkt
 
-    def create_rtpt(self):
-        rtpt_config = self._config['rtpt']
-        rtpt = RTPT(name_initials=rtpt_config['name_initials'],
-                    experiment_name=rtpt_config['experiment_name'],
-                    max_iterations=self.training['num_steps'])
-        return rtpt
+    # def create_rtpt(self):
+    #     rtpt_config = self._config['rtpt']
+    #     rtpt = RTPT(name_initials=rtpt_config['name_initials'],
+    #                 experiment_name=rtpt_config['experiment_name'],
+    #                 max_iterations=self.training['num_steps'])
+    #     return rtpt
 
     @property
     def clean_batch_size(self):
@@ -114,6 +121,10 @@ class ConfigParser:
     @property
     def text_encoder(self):
         return self._config['text_encoder']
+    
+    @property
+    def stable_diffusion_model(self):
+        return self._config['stable_diffusion_model']
 
     @property
     def dataset(self):
