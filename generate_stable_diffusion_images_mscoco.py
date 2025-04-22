@@ -7,22 +7,25 @@ from torch import autocast
 from transformers import CLIPTextModel, set_seed
 import pandas as pd
 from argparse import ArgumentParser
+from utils.hf_captions import create_hf_coco_dataset
 
 
-# HF_TOKEN = 'INSERT_HF_TOKEN'
-# OUTPUT_FOLDER = 'images'
 NUM_SAMPLES = 9
 set_seed(42)
 
-BASE_SWAP_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/swap"
-BASE_ORIG_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/orig"
-DATA_FILE = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/train_val_test/4-1-1/basic/sge/test.csv"
-# dialect type is the second last path of the prompt directory
-DIALECT_TYPE = DATA_FILE.split("/")[-2]
-# model = "stabilityai/stable-diffusion-2-1"
+# BASE_SWAP_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/mscoco_swap"
+# BASE_SWAP_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/mscoco_swap_kl_image_as_class"
+BASE_SWAP_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/mscoco_swap_kl_iac_20ep"
+BASE_ORIG_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/mscoco_orig"
+
+
+caption_file_path = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/mscoco/annotations/captions_val2017.json"
+image_folder_path = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/mscoco/val2017"
 
 
 def main(args):
+    mscoco = create_hf_coco_dataset(caption_file_path, image_folder_path).select(range(4950, 5000))
+    
     pipe = StableDiffusionPipeline.from_pretrained(
         args.model,
     ).to("cuda")
@@ -32,52 +35,37 @@ def main(args):
         base_dir = BASE_SWAP_DIR
         if "stable-diffusion-2-1" in args.model:
             # pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-            # text_encoder = CLIPTextModel.from_pretrained("models/singlish_sd21", use_safetensors=True, device_map="auto")
+            text_encoder = CLIPTextModel.from_pretrained("models/singlish_sd21", use_safetensors=True, device_map="auto")
             # text_encoder = CLIPTextModel.from_pretrained("models/sge/singlish_kl_sd21", use_safetensors=True, device_map="auto")
-            text_encoder = CLIPTextModel.from_pretrained(args.encoder, use_safetensors=True, device_map="auto")
             pipe.text_encoder = text_encoder
         if "stable-diffusion-v1-5" in args.model:
             # pipe.scheduler = LMSDiscreteScheduler(beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear")
+            # text_encoder = CLIPTextModel.from_pretrained("models/singlish", use_safetensors=True, device_map="auto")
             # text_encoder = CLIPTextModel.from_pretrained("models/sge/singlish_kl", use_safetensors=True, device_map="auto")
-            text_encoder = CLIPTextModel.from_pretrained(args.encoder, use_safetensors=True, device_map="auto")
+            # text_encoder = CLIPTextModel.from_pretrained("models/sge/singlish_kl_image_as_class", use_safetensors=True, device_map="auto")
+            text_encoder = CLIPTextModel.from_pretrained("models/sge/singlish_kl_iac_20ep", use_safetensors=True, device_map="auto")
             pipe.text_encoder = text_encoder
     else:
         base_dir = BASE_ORIG_DIR
         
 
-    df = pd.read_csv(DATA_FILE, encoding="unicode_escape")
-    dialect_prompts = df["Dialect_Prompt"].tolist()
-    sae_prompts = df["SAE_Prompt"].tolist()
+    prompts = [ct[0] for ct in mscoco["captions"]]
 
-    for i in range(len(dialect_prompts)):
-        dialect_prompt = dialect_prompts[i]
-        sae_prompt = sae_prompts[i]
-        
-        model_base_name = args.encoder.split("/")[-1]
-        prompt_dir = os.path.join(base_dir, model_base_name, DIALECT_TYPE, dialect_prompt)
-        os.makedirs(prompt_dir, exist_ok=False)
-        prompt_dir = os.path.join(base_dir, model_base_name, "sae", sae_prompt)
+    for prompt in prompts:
+        model_base_name = args.model.split("/")[-1]
+        prompt_dir = os.path.join(base_dir, model_base_name, prompt)
         os.makedirs(prompt_dir, exist_ok=False)
         
         for k in range(NUM_SAMPLES):
-            ## DIALECT
             with autocast("cuda"):
-                image = pipe(dialect_prompt).images[0]
-            image_path = os.path.join(base_dir, model_base_name, DIALECT_TYPE, dialect_prompt, f"{k}.jpg")
+                image = pipe(prompt).images[0]
+            image_path = os.path.join(base_dir, model_base_name, prompt, f"{k}.jpg")
             image.save(image_path)
-            
-            ## SAE
-            with autocast("cuda"):
-                image = pipe(sae_prompt).images[0]
-            image_path = os.path.join(base_dir, model_base_name, "sae", sae_prompt, f"{k}.jpg")
-            image.save(image_path)
-
 
 def parse_arguments():
     parser = ArgumentParser(description="Generate images using a stable diffusion model.")
     parser.add_argument("--model", type=str, default="stable-diffusion-v1-5/stable-diffusion-v1-5", 
                         choices=["stabilityai/stable-diffusion-2-1", "stable-diffusion-v1-5/stable-diffusion-v1-5"])
-    parser.add_argument("--encoder", type=str, default="models/sge/singlish_kl_iac_20ep")
     parser.add_argument("--swap", action="store_true", help="Swap in the trained text encoder.")
     args = parser.parse_args()
     return args

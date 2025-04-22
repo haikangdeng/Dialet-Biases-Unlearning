@@ -26,3 +26,15 @@ Dialect total score for stable-diffusion-v1-5: 0.7119
 Dialect total score for stable-diffusion-2-1: 0.6555
 Sae total score for stable-diffusion-v1-5: 0.7675
 Sae total score for stable-diffusion-2-1: 0.8224
+
+=========================================================
+KL DIVERGENCE REGULARIZATION
+
+Before Unlearning
+Dialect total score for stable-diffusion-v1-5: 0.5756
+Sae total score for stable-diffusion-v1-5: 0.8011
+
+After Unlearning
+Dialect total score for stable-diffusion-v1-5-kl: 0.7109
+Sae total score for stable-diffusion-v1-5-kl: 0.7695
+

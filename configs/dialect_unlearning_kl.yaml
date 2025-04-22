@@ -7,16 +7,14 @@ seed: 42
 # dialect_file: /data2/haikang/projects/cloned/Dialet-Biases-Unlearning/train_val_test/4-1-1/basic/sge/train.csv
 dialect_file_folder: /data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/train_val_test/4-1-1/basic
 
-# tokenizer: laion/CLIP-ViT-H-14-laion2B-s32B-b79K      # wrong text encoder
-# text_encoder: laion/CLIP-ViT-H-14-laion2B-s32B-b79K   # wrong text encoder
-stable_diffusion_model: stabilityai/stable-diffusion-2-1
-
+# tokenizer: openai/clip-vit-large-patch14
+# text_encoder: openai/clip-vit-large-patch14
+stable_diffusion_model: runwayml/stable-diffusion-v1-5
 hf_token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 optimizer:  # specify the optimizer and its parameters from torch.optim for training.
   AdamW:
-    # lr: 0.0001
-    lr: 0.00001
+    lr: 0.0001 #1e-6
     betas: [0.9, 0.999]
     eps: 1.0e-08
     weight_decay: 0.0
@@ -26,24 +24,8 @@ lr_scheduler: # option to provide a learning rate scheduler from torch.optim.
     milestones: [400]
     gamma: 0.1
 
-# injection:
-#   homoglyph_count: 1
-#   poisoned_samples_per_step: 128
-#   homoglyphs:
-#     - homoglyph: ο
-#       replaced_character: o
-#     - homoglyph: о
-#       replaced_character: o
-#     - homoglyph: ه
-#       replaced_character: o
-#     - homoglyph: ㅇ
-#       replaced_character: o
-#     - homoglyph: ọ
-#       replaced_character: o
-
-
 training: # select the training parameters.
-  epochs: 10
+  epochs: 20
   loss_weight: 1.0
   num_steps: 100
   clean_batch_size: 32
@@ -53,7 +35,7 @@ training: # select the training parameters.
   loss_fkt: SimilarityLoss
   alpha_sae_reg: 1.0
   beta_dialect_reg: 0.1
-  # gamma_kl_weight: 1.0
+  gamma_kl_weight: 1.0
  
 evaluation: # select parameters for evaluation metrics
   # caption_file: metrics/captions_10000_o.txt
@@ -70,3 +52,12 @@ wandb: # options for WandB logging.
     project: Dialect Unlearning
     name: dialect_unlearning
     save_code: true
+
+caption_dataset:
+  caption_file_path: /data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/mscoco/annotations/captions_val2017.json
+  image_folder_path: /data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/mscoco/val2017
+  batch_size: 100
+  control_size: 1000
+  # batch_size: 10
+
+clip_model: openai/clip-vit-large-patch14

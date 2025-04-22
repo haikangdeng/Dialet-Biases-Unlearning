@@ -49,6 +49,9 @@ training: # select the training parameters.
   dataloader_num_workers: 8
   save_path: models
   loss_fkt: SimilarityLoss
+  alpha_sae_reg: 1.0
+  beta_dialect_reg: 0.1
+  # gamma_kl_weight: 1.0
  
 evaluation: # select parameters for evaluation metrics
   # caption_file: metrics/captions_10000_o.txt

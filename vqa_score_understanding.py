@@ -9,10 +9,16 @@ from argparse import ArgumentParser
 # IMG_DIR = "/local1/bryanzhou008/Dialect/multimodal-dialectal-bias/data/image/basic/bre"
 # DATA_FILE = "/local1/bryanzhou008/Dialect/multimodal-dialectal-bias/data/text/basic/bre.csv"
 # MODELS_TO_EVALUATE = ["stable-diffusion-3.5-large-turbo"]
-IMG_DIR_SWAP = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images"
-IMG_DIR_ORIG = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images_orig"
+IMG_DIR_SWAP = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/swap"
+IMG_DIR_ORIG = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/orig"
+
+# BASE_SWAP_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/mscoco_swap"
+# BASE_ORIG_DIR = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/images/mscoco_orig"
+
 DATA_FILE = "/data2/haikang/projects/cloned/Dialet-Biases-Unlearning/data/train_val_test/4-1-1/basic/sge/test.csv"
-MODELS_TO_EVALUATE = ["stable-diffusion-v1-5", "stable-diffusion-2-1"]
+# MODELS_TO_EVALUATE = ["stable-diffusion-v1-5", "stable-diffusion-2-1"]
+# MODELS_TO_EVALUATE = ["stable-diffusion-v1-5-kl"]
+MODELS_TO_EVALUATE = ["singlish_kl_iac_20ep"]
 # ------------------------------------------------------------------
 
 # Initialize the new scoring metric.
@@ -80,7 +86,7 @@ def main(args):
             avg_score = sum(scores) / len(scores)
             print(f"{set_type.capitalize()} total score for {model}: {avg_score:.4f}")
     
-    output_file = os.path.join(img_dir, "results.json")
+    output_file = os.path.join(img_dir, "kl_results.json")
     with open(output_file, "w") as f:
         json.dump(results, f)
 

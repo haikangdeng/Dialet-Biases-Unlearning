@@ -23,13 +23,22 @@ class ConfigParser:
         return tokenizer
 
     def load_text_encoder(self):
+        # text_encoder = CLIPTextModel.from_pretrained(
+        #     self._config['text_encoder'],
+        #     torch_dtype=torch.float16,
+        # )
         text_encoder = CLIPTextModel.from_pretrained(
-            self._config['text_encoder'])
+            self._config['text_encoder'],
+        )
         return text_encoder
     
     def load_encoder_and_tokenizer(self):
+        # pipe = StableDiffusionPipeline.from_pretrained(
+        #     self._config["stable_diffusion_model"],
+        #     torch_dtype=torch.float16,
+        # )
         pipe = StableDiffusionPipeline.from_pretrained(
-            self._config["stable_diffusion_model"],
+            self._config["stable_diffusion_model"]
         )
         return pipe.text_encoder, pipe.tokenizer
 
@@ -155,6 +164,26 @@ class ConfigParser:
         return self._config['wandb']
     
     @property
+    def caption_dataset(self):
+        return self._config['caption_dataset']
+    
+    @property
+    def caption_file_path(self):
+        return self.caption_dataset["caption_file_path"]
+    
+    @property
+    def image_folder_path(self):
+        return self.caption_dataset["image_folder_path"]
+    
+    @property
+    def kl_batch_size(self):
+        return int(self.caption_dataset["batch_size"])
+    
+    @property
+    def kl_control_size(self):
+        return int(self.caption_dataset["control_size"])
+    
+    @property
     def epochs(self):
         return self._config['training']['epochs']
 
@@ -193,3 +222,21 @@ class ConfigParser:
     @property
     def dialect_file_folder(self):
         return self._config['dialect_file_folder']
+    
+    @property
+    def clip_model(self):
+        return self._config['clip_model']
+
+    @property
+    def alpha_sae_reg(self):
+        return self._config['training']['alpha_sae_reg']
+    
+    @property
+    def beta_dialect_reg(self):
+        return self._config['training']['beta_dialect_reg']
+    
+    @property
+    def gamma_kl_weight(self):
+        if 'gamma_kl_weight' not in self._config['training']:
+            return None
+        return self._config['training']['gamma_kl_weight']
